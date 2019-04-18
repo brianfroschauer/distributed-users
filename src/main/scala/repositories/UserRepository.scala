@@ -1,5 +1,6 @@
 package repositories
 
+import com.google.protobuf.timestamp.Timestamp
 import database.{Db, UserTable}
 import models.User
 import slick.basic.DatabaseConfig
@@ -17,11 +18,11 @@ class UserRepository (val config: DatabaseConfig[H2Profile])
 
   db.run(DBIO.seq(users.schema.create))
 
-  def create(firstName: String, lastName: String): Future[User] = db.run (
-    (users.map(user => (user.firstName, user.lastName))
+  def create(firstName: String, lastName: String, email: String): Future[User] = db.run (
+    (users.map(user => (user.firstName, user.lastName, user.email, user.timestamp))
       returning users.map(_.userId)
-      into ((userData, userId) => User(userId, userData._1, userData._2))
-      ) += (firstName, lastName)
+      into ((userData, userId) => User(userId, userData._1, userData._2, userData._3, userData._4))
+      ) += (firstName, lastName, email, Timestamp.toString)
   )
 
   def update(user: User): Future[Int] = {

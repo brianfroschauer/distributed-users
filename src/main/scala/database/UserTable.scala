@@ -12,6 +12,8 @@ trait UserTable {
     def userId = column[Long]("user_id", O.PrimaryKey, O.AutoInc)
     def firstName = column[String]("first_name")
     def lastName = column[String]("last_name")
-    def * = (userId, firstName, lastName) <> ((User.apply _).tupled, User.unapply)
+    def email = column[String]("email")
+    def timestamp = column[String]("timestamp")
+    def * = (userId, firstName, lastName, email, timestamp) <> ((User.apply _).tupled, User.unapply)
   }
 }
