@@ -22,7 +22,7 @@ class UserRepository (val config: DatabaseConfig[H2Profile])
     (users.map(user => (user.firstName, user.lastName, user.email, user.timestamp))
       returning users.map(_.userId)
       into ((userData, userId) => User(userId, userData._1, userData._2, userData._3, userData._4))
-      ) += (firstName, lastName, email, Timestamp.toString)
+      ) += (firstName, lastName, email, Timestamp.SECONDS_FIELD_NUMBER)
   )
 
   def update(user: User): Future[Int] = {

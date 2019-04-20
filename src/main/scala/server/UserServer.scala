@@ -1,11 +1,11 @@
 package server
 
 import io.grpc.{ManagedChannelBuilder, ServerBuilder}
+import proto.user.{AddUserRequest, UserServiceGrpc}
 import repositories.UserRepository
 import service.UserService
 import slick.basic.DatabaseConfig
 import slick.jdbc.H2Profile
-import user.user.{AddUserRequest, UserServiceGrpc}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.{Failure, Success}

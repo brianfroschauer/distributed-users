@@ -1,10 +1,11 @@
 package service
 
+import com.google.protobuf.timestamp.Timestamp
 import io.grpc.{ManagedChannel, ManagedChannelBuilder, Status, StatusRuntimeException}
 import models.User
+import proto.user._
 import repositories.UserRepository
 import server.ServiceManager
-import user.user._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -16,7 +17,7 @@ class UserService(userRepository: UserRepository,
   extends UserServiceGrpc.UserService {
 
   override def addUser(request: AddUserRequest): Future[AddUserResponse] = {
-    userRepository.create(request.firstName, request.lastName) map {
+    userRepository.create(request.firstName, request.lastName, request.email) map {
       user => AddUserResponse(user.userId)
     }
   }
@@ -50,7 +51,7 @@ class UserService(userRepository: UserRepository,
   }
 
   override def updateUser(request: UpdateUserRequest): Future[UpdateUserResponse] = {
-    userRepository.update(User(request.userId, request.firstName, request.lastName))
+    userRepository.update(User(request.userId, request.firstName, request.lastName, request.email, Timestamp.SECONDS_FIELD_NUMBER))
       .map(userId => UpdateUserResponse(userId))
   }
 

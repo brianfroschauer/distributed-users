@@ -13,7 +13,7 @@ trait UserTable {
     def firstName = column[String]("first_name")
     def lastName = column[String]("last_name")
     def email = column[String]("email")
-    def timestamp = column[String]("timestamp")
+    def timestamp = column[Int]("timestamp")
     def * = (userId, firstName, lastName, email, timestamp) <> ((User.apply _).tupled, User.unapply)
   }
 }
