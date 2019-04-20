@@ -7,7 +7,7 @@ ThisBuild / organizationName := "example"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "wishlist",
+    name := "distributed-users",
     libraryDependencies += scalaTest % Test
   )
 
@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
     withSources() withJavadoc(),
   "com.typesafe.slick"          %% "slick"                  % "3.3.0",
   "org.slf4j"                    % "slf4j-nop"              % "1.6.4",
-  "com.h2database"               % "h2"                     % "1.4.199"
+  "com.h2database"               % "h2"                     % "1.4.199",
+  "com.google.api.grpc" % "proto-google-common-protos" % "1.15.0"
 )
 
 
@@ -25,7 +26,8 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
-  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
+  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+
 )
 
 PB.targets in Compile := Seq(
@@ -33,4 +35,3 @@ PB.targets in Compile := Seq(
 )
 
 libraryDependencies += "com.github.mingchuno" %% "etcd4s-core" % "0.2.0"
-//libraryDependencies += "org.slf4j" % "slf4j-log4j12" % "1.7.26" % Test

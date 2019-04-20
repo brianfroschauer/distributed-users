@@ -4,11 +4,9 @@ import com.google.protobuf.timestamp.Timestamp
 import models.User
 import proto.user._
 import repositories.UserRepository
-import server.ServiceManager
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserService(userRepository: UserRepository,
-                  serviceManager: ServiceManager)
+class UserService(userRepository: UserRepository)
                  (implicit ec: ExecutionContext)
   extends UserServiceGrpc.UserService {
 
