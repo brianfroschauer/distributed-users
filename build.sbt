@@ -16,8 +16,7 @@ libraryDependencies ++= Seq(
     withSources() withJavadoc(),
   "com.typesafe.slick"          %% "slick"                  % "3.3.0",
   "org.slf4j"                    % "slf4j-nop"              % "1.6.4",
-  "com.h2database"               % "h2"                     % "1.4.199",
-  "com.google.api.grpc" % "proto-google-common-protos" % "1.15.0"
+  "com.h2database"               % "h2"                     % "1.4.199"
 )
 
 

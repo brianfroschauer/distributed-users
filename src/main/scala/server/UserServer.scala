@@ -1,6 +1,6 @@
 package server
 
-import io.grpc.{ManagedChannel, ManagedChannelBuilder, ServerBuilder}
+import io.grpc.{ManagedChannelBuilder, ServerBuilder}
 import proto.user.{AddUserRequest, UserServiceGrpc}
 import repositories.UserRepository
 import service.UserService
@@ -22,7 +22,7 @@ object UserServer extends App {
 
   val stub = UserServiceGrpc.stub(channel)
 
-  val server = ServerBuilder.forPort(50001)
+  val server = ServerBuilder.forPort(50000)
     .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
     .build()
 
@@ -37,17 +37,34 @@ object ClientDemo extends App {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  val channel = ManagedChannelBuilder.forAddress("localhost", 50001)
+  val config = DatabaseConfig.forConfig[H2Profile]("db")
+  val userRepository = new UserRepository(config)
+
+  val channel = ManagedChannelBuilder.forAddress("localhost", 50000)
     .usePlaintext(true)
     .build()
 
   val stub = UserServiceGrpc.stub(channel)
 
-  val user = stub.addUser(AddUserRequest("Brian", "Froschauer"))
+  val server = ServerBuilder.forPort(50000)
+    .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
+    .build()
+
+  server.start()
+
+  println("Running...")
+
+  println("\nAdding user...")
+
+  val user = stub.addUser(AddUserRequest("Brian", "Froschauer", "mail@example.com"))
+
+  print("User added successfully")
 
   user.onComplete { response =>
-    println(response.get.userId)
+    println("\nUser id in the response: " + response.get.userId)
   }
 
   System.in.read()
+
+  server.awaitTermination()
 }
