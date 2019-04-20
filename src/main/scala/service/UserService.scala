@@ -1,20 +1,17 @@
 package service
 
 import com.google.protobuf.timestamp.Timestamp
-import io.grpc.{ManagedChannel, ManagedChannelBuilder, Status, StatusRuntimeException}
 import models.User
 import proto.user._
 import repositories.UserRepository
 import server.ServiceManager
-
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
 
 class UserService(userRepository: UserRepository,
                   serviceManager: ServiceManager)
                  (implicit ec: ExecutionContext)
   extends UserServiceGrpc.UserService {
+
 
   override def addUser(request: AddUserRequest): Future[AddUserResponse] = {
     userRepository.create(request.firstName, request.lastName, request.email) map {
@@ -32,22 +29,11 @@ class UserService(userRepository: UserRepository,
   override def getUsers(request: GetUsersRequest): Future[GetUsersResponse] = {
     val eventualUsers = userRepository.list()
 
-    val result = getUserServiceStub.flatMap(stub => {
-      eventualUsers.map(users => users.map(
-        user => stub.getUser(GetUserRequest(user.userId))
-      )).flatMap(response => Future.sequence(response))
-    })
+    val eventualResponses = eventualUsers.map(users =>
+      users.map(user =>
+        GetUserResponse(user.userId, user.firstName, user.lastName, user.email)))
 
-    val value = Await.ready(result, Duration.apply(5, "second")).value.get
-
-    value match {
-      case Success(users) => Future.successful(GetUsersResponse(users))
-      case Failure(exception: StatusRuntimeException) =>
-        if (exception.getStatus.getCode == Status.Code.UNAVAILABLE) {
-          getUsers(request)
-        } else throw exception
-    }
-
+    eventualResponses.map(res => GetUsersResponse(res))
   }
 
   override def updateUser(request: UpdateUserRequest): Future[UpdateUserResponse] = {
@@ -55,18 +41,12 @@ class UserService(userRepository: UserRepository,
       .map(userId => UpdateUserResponse(userId))
   }
 
-  override def deleteUser(request: DeleteUserRequest): Future[DeleteUserResponse] = ???
+  override def deleteUser(request: DeleteUserRequest): Future[DeleteUserResponse] = {
+    userRepository.delete(request.userId)
+    Future.successful(DeleteUserResponse())
+  }
 
   override def isActive(request: PingRequest): Future[PingResponse] = ???
-
-  private def getUserServiceStub: Future[UserServiceGrpc.UserServiceStub] = {
-    serviceManager.getAddress("users").map {
-        case Some(value) =>
-          val channel: ManagedChannel = ManagedChannelBuilder.forAddress(value.address, value.port).build()
-          UserServiceGrpc.stub(channel)
-        case None => throw new RuntimeException("No users services running")
-      }
-  }
 }
 
 case object UserNotFoundException extends RuntimeException

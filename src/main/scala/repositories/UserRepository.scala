@@ -36,4 +36,8 @@ class UserRepository (val config: DatabaseConfig[H2Profile])
   def getById(userId: Long): Future[Option[User]] = db.run (
     users.filter{_.userId === userId}.result.headOption
   )
+
+  def delete(userId: Long): Unit = {
+    users.filter(user => user.userId === userId).delete
+  }
 }

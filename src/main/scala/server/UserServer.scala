@@ -16,12 +16,12 @@ object UserServer extends App {
 
   val stubManager = new ServiceManager
 
-  stubManager.startConnection("0.0.0.0", 50001, "users")
+  stubManager.startConnection("0.0.0.0", 50002, "users")
 
   val config = DatabaseConfig.forConfig[H2Profile]("db")
   val userRepository = new UserRepository(config)
 
-  val server = ServerBuilder.forPort(50001)
+  val server = ServerBuilder.forPort(50002)
     .addService(UserServiceGrpc.bindService(new UserService(userRepository, stubManager), ExecutionContext.global))
     .build()
 
