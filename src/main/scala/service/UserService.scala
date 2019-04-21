@@ -43,8 +43,6 @@ class UserService(userRepository: UserRepository)
     userRepository.delete(request.userId)
     Future.successful(DeleteUserResponse())
   }
-
-  override def isActive(request: PingRequest): Future[PingResponse] = ???
 }
 
 case object UserNotFoundException extends RuntimeException

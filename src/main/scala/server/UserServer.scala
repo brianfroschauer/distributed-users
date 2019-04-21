@@ -1,6 +1,5 @@
 package server
 
-import com.google.common.util.concurrent.ServiceManager
 import io.grpc.{ManagedChannelBuilder, ServerBuilder}
 import proto.user.{AddUserRequest, UserServiceGrpc}
 import repositories.UserRepository
@@ -22,7 +21,8 @@ object UserServer extends App {
   val userRepository = new UserRepository(config)
 
   val server = ServerBuilder.forPort(50003)
-    .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
+    .addService(UserServiceGrpc.bindService(
+      new UserService(userRepository), ExecutionContext.global))
     .build()
 
   server.start()
@@ -36,8 +36,6 @@ object ClientDemo extends App {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  val config = DatabaseConfig.forConfig[H2Profile]("db")
-  val userRepository = new UserRepository(config)
   val serviceManager = new ServiceManager
   val address = Await.ready(serviceManager.getAddress("user"), Duration(5, "second")).value.get.get
 

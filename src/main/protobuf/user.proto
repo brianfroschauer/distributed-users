@@ -58,11 +58,3 @@ message DeleteUserRequest {
 message DeleteUserResponse {
 
 }
-
-message PingRequest {
-
-}
-
-message PingResponse {
-    string response = 1;
-}
