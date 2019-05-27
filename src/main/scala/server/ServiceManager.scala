@@ -3,14 +3,16 @@ package server
 import com.google.gson.Gson
 import com.google.protobuf.ByteString
 import io.grpc.stub.StreamObserver
-import org.etcd4s.pb.etcdserverpb.{LeaseGrantRequest, LeaseKeepAliveRequest, LeaseKeepAliveResponse, PutRequest, PutResponse}
+import org.etcd4s.pb.etcdserverpb._
 import org.etcd4s.{Etcd4sClient, Etcd4sClientConfig}
 
 import scala.concurrent.Future
 import scala.util.Random
 
 class ServiceManager {
+
   import scala.concurrent.ExecutionContext.Implicits.global
+
   /*The address client is the address where etcd is running*/
   val addressClient = "127.0.0.1"
   val addressPort = 2379
@@ -26,7 +28,7 @@ class ServiceManager {
     */
   def startConnection(address: String, port: Int, url: String): Future[PutResponse] = {
     val id = Random.nextLong()
-//    The minimum ttl a lease can receive is 2 seconds. When a minor ttl is granted, it is automatically set to 2.
+    // The minimum ttl a lease can receive is 2 seconds. When a minor ttl is granted, it is automatically set to 2.
     val response = client.rpcClient.leaseRpc.leaseGrant(LeaseGrantRequest(ttl, id))
     val future: Future[PutResponse] = response.flatMap(v => {
       println(v.tTL)
@@ -51,7 +53,7 @@ class ServiceManager {
   def getAddress(url: String): Future[Option[AddressWithPort]] = {
     val future = client.kvService.getRange(url).map(res => {
       val quantity = res.count
-      if(quantity > 0)
+      if (quantity > 0)
         Option(new Gson()
           .fromJson(res.kvs(Random.nextInt(res.count.toInt)).value.toStringUtf8, classOf[AddressWithPort]))
       else None

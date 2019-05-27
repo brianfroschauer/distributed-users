@@ -4,12 +4,12 @@ import com.google.protobuf.timestamp.Timestamp
 import database.{Db, UserTable}
 import models.User
 import slick.basic.DatabaseConfig
-import slick.jdbc.H2Profile
+import slick.jdbc.MySQLProfile
 import slick.lifted
 
 import scala.concurrent.Future
 
-class UserRepository (val config: DatabaseConfig[H2Profile])
+class UserRepository (val config: DatabaseConfig[MySQLProfile])
   extends Db with UserTable {
 
   import config.profile.api._

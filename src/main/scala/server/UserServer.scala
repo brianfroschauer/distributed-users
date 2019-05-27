@@ -5,7 +5,7 @@ import proto.user.{AddUserRequest, UserServiceGrpc}
 import repositories.UserRepository
 import service.UserService
 import slick.basic.DatabaseConfig
-import slick.jdbc.H2Profile
+import slick.jdbc.MySQLProfile
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
@@ -17,7 +17,7 @@ object UserServer extends App {
   val serviceManager = new ServiceManager
   serviceManager.startConnection("localhost", 50003, "user")
 
-  val config = DatabaseConfig.forConfig[H2Profile]("db")
+  val config = DatabaseConfig.forConfig[MySQLProfile]("db")
   val userRepository = new UserRepository(config)
 
   val server = ServerBuilder.forPort(50003)
