@@ -1,6 +1,6 @@
 package server
 
-import io.grpc.{ManagedChannelBuilder, ServerBuilder}
+import io.grpc.{ManagedChannel, ManagedChannelBuilder, ServerBuilder}
 import proto.user.{AddUserRequest, UserServiceGrpc}
 import repositories.UserRepository
 import service.UserService
@@ -14,15 +14,20 @@ object UserServer extends App {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
-  val serviceManager = new ServiceManager
-  serviceManager.startConnection("localhost", 50003, "user")
+  /*val serviceManager = new ServiceManager
+  serviceManager.startConnection("localhost", 50003, "user")*/
 
   val config = DatabaseConfig.forConfig[MySQLProfile]("db")
   val userRepository = new UserRepository(config)
 
-  val server = ServerBuilder.forPort(50003)
-    .addService(UserServiceGrpc.bindService(
-      new UserService(userRepository), ExecutionContext.global))
+  val channel: ManagedChannel = ManagedChannelBuilder.forAddress("user", 50000)
+    .usePlaintext(true)
+    .build()
+
+  val stub: UserServiceGrpc.UserServiceStub = UserServiceGrpc.stub(channel)
+
+  val server = ServerBuilder.forPort(50001)
+    .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
     .build()
 
   server.start()
@@ -32,7 +37,7 @@ object UserServer extends App {
   server.awaitTermination()
 }
 
-object ClientDemo extends App {
+/*object ClientDemo extends App {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
@@ -57,4 +62,4 @@ object ClientDemo extends App {
 
   System.in.read()
 
-}
+}*/
