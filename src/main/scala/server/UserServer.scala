@@ -1,24 +1,33 @@
 package server
 
-import io.grpc.{ManagedChannel, ManagedChannelBuilder, ServerBuilder}
-import proto.user.{AddUserRequest, UserServiceGrpc}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import io.grpc.ServerBuilder
+import proto.user.UserServiceGrpc
 import repositories.UserRepository
 import service.UserService
 import slick.basic.DatabaseConfig
 import slick.jdbc.MySQLProfile
 
-import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor}
 
 object UserServer extends App {
 
   implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
+  // root is the default value for user and password
+  val user: String = args.lift(0).getOrElse("root")
+  val password: String = args.lift(1).getOrElse("root")
+
   /*val serviceManager = new ServiceManager
   serviceManager.startConnection("localhost", 50003, "user")*/
 
-  val config = DatabaseConfig.forConfig[MySQLProfile]("db")
-  val userRepository = new UserRepository(config)
+  val config: Config = ConfigFactory.load("db")
+  val url: String = s"jdbc:mysql://localhost:3306/test?user=$user&password=$password"
+  val newConfig = config.withValue("db.db.url", ConfigValueFactory.fromAnyRef(url))
+
+  val databaseConfig = DatabaseConfig.forConfig[MySQLProfile]("db", newConfig)
+
+  val userRepository = new UserRepository(databaseConfig)
 
   val server = ServerBuilder.forPort(50001)
     .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
