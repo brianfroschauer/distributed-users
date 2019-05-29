@@ -20,7 +20,7 @@ object UserServer extends App {
   val config = DatabaseConfig.forConfig[MySQLProfile]("db")
   val userRepository = new UserRepository(config)
 
-  val server = ServerBuilder.forPort(50000)
+  val server = ServerBuilder.forPort(50001)
     .addService(UserServiceGrpc.bindService(new UserService(userRepository), ExecutionContext.global))
     .build()
 
